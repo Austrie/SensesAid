@@ -104,4 +104,11 @@ public class MainActivity extends AppCompatActivity
         Intent i = new Intent(MainActivity.this, CameraActivity.class);
         startActivity(i);
     }
+
+    public void start3DCamera(View v) {
+        Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.hackathon.senseAid");
+        if (launchIntent != null) {
+            startActivity(launchIntent);//null pointer check in case package name was not found
+        }
+    }
 }

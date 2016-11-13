@@ -74,6 +74,7 @@ public class CameraActivity extends Activity implements RecognitionListener {
 
         txtSpeechInput = (TextView) findViewById(R.id.textView);
         toggleButton = (ToggleButton) findViewById(R.id.tButton);
+        toggleButton.setVisibility(View.INVISIBLE);
 
         //Voice recognition trigger variable
         //mVoiceRecognitionTrigger = new VoiceRecognitionTrigger(this);
