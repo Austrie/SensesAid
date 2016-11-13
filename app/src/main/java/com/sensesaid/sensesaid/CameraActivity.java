@@ -2,13 +2,17 @@ package com.sensesaid.sensesaid;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -54,7 +58,7 @@ public class CameraActivity extends Activity implements RecognitionListener {
 
         setContentView(R.layout.frame);
 
-        startService(new Intent(ListeningService.MY_SERVICE));
+        startService(new Intent(this, ListeningService.class));
 
 
         // Create an instance of Camera
@@ -95,6 +99,17 @@ public class CameraActivity extends Activity implements RecognitionListener {
             }
         });
 
+        //To change textview from service
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        String extra_text = intent.getStringExtra(ListeningService.EXTRA_TEXT);
+                        txtSpeechInput.setText(extra_text);
+                    }
+                }, new IntentFilter(ListeningService.ACTION_LISTENING_BROADCAST)
+        );
+
     }
 
     @Override
@@ -105,7 +120,7 @@ public class CameraActivity extends Activity implements RecognitionListener {
             speech.destroy();
             Log.i(LOG_TAG, "destroy");
         }
-        stopService(new Intent(ListeningService.MY_SERVICE));
+        stopService(new Intent(this, ListeningService.class));
     }
 
     /**
@@ -131,7 +146,7 @@ public class CameraActivity extends Activity implements RecognitionListener {
     @Override
     public void onBeginningOfSpeech() {
         Log.i(LOG_TAG, "onBeginningOfSpeech");
-        txtSpeechInput.setText("onBeginningOfSpeech");
+        //txtSpeechInput.setText("onBeginningOfSpeech");
     }
 
     @Override
@@ -228,12 +243,12 @@ public class CameraActivity extends Activity implements RecognitionListener {
     @Override
     public void onStart() {
         super.onStart();
-        startService(new Intent(ListeningService.MY_SERVICE));
+        startService(new Intent(this, ListeningService.class));
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        stopService(new Intent(ListeningService.MY_SERVICE));
+        stopService(new Intent(this, ListeningService.class));
     }
 }

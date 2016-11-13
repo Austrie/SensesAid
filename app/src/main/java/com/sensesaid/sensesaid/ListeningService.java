@@ -3,6 +3,7 @@ package com.sensesaid.sensesaid;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,9 +17,13 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 import static android.content.ContentValues.TAG;
 
@@ -37,6 +42,14 @@ public class ListeningService extends Service {
     static final int MSG_RECOGNIZER_START_LISTENING = 1;
     static final int MSG_RECOGNIZER_CANCEL = 2;
 
+    private String LOG_TAG = "CameraActivity";
+    private TextView txtSpeechInput;
+
+    public static final String
+            ACTION_LISTENING_BROADCAST = ListeningService.class.getName() + "Listening",
+            EXTRA_TEXT = "extra_text";
+
+
     @Override
     public void onCreate()
     {
@@ -49,7 +62,24 @@ public class ListeningService extends Service {
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         mSpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
                 this.getPackageName());
+
+        AudioManager amanager=(AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        amanager.setStreamMute(AudioManager.STREAM_NOTIFICATION, true);
+        amanager.setStreamMute(AudioManager.STREAM_ALARM, true);
+        amanager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+        amanager.setStreamMute(AudioManager.STREAM_RING, true);
+        amanager.setStreamMute(AudioManager.STREAM_SYSTEM, true);
+
+        mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
+
+        sendBroadcastMessage("Service");
     }
+
+    private void sendBroadcastMessage(String voice) {
+            Intent intent = new Intent(ACTION_LISTENING_BROADCAST);
+            intent.putExtra(EXTRA_TEXT, voice);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
 
     protected static class IncomingHandler extends Handler
     {
@@ -163,7 +193,7 @@ public class ListeningService extends Service {
                 mIsCountDownOn = false;
                 mNoSpeechCountDown.cancel();
             }
-            //Log.d(TAG, "onBeginingOfSpeech"); //$NON-NLS-1$
+            Log.i(LOG_TAG, "onBeginningOfSpeech");
         }
 
         @Override
@@ -226,8 +256,17 @@ public class ListeningService extends Service {
         @Override
         public void onResults(Bundle results)
         {
-            //Log.d(TAG, "onResults"); //$NON-NLS-1$
+            Log.i(LOG_TAG, "onResults");
+            ArrayList<String> matches = results
+                    .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            String text = "";
+            for (int i = 0; i < 1; i++) {
+                String result = matches.listIterator().next();
+                text += result + "\n";
+            }
 
+            sendBroadcastMessage(text);
+            mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
         }
 
         @Override
