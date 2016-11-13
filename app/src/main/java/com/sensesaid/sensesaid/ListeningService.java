@@ -22,16 +22,13 @@ import java.lang.ref.WeakReference;
 
 import static android.content.ContentValues.TAG;
 
-/**
- * Created by MLH-Admin on 11/12/2016.
- */
-
 public class ListeningService extends Service {
 
     protected static AudioManager mAudioManager;
     protected SpeechRecognizer mSpeechRecognizer;
     protected Intent mSpeechRecognizerIntent;
     protected final Messenger mServerMessenger = new Messenger(new IncomingHandler(this));
+     public static final String MY_SERVICE = "com.sensaid.senseaid.LISTENING_SERVICE";
 
     protected boolean mIsListening;
     protected volatile boolean mIsCountDownOn;

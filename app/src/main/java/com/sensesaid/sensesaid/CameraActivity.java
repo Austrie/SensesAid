@@ -54,6 +54,8 @@ public class CameraActivity extends Activity implements RecognitionListener {
 
         setContentView(R.layout.frame);
 
+        startService(new Intent(ListeningService.MY_SERVICE));
+
 
         // Create an instance of Camera
         mCamera = getCameraInstance();
@@ -103,8 +105,7 @@ public class CameraActivity extends Activity implements RecognitionListener {
             speech.destroy();
             Log.i(LOG_TAG, "destroy");
         }
-
-
+        stopService(new Intent(ListeningService.MY_SERVICE));
     }
 
     /**
@@ -227,10 +228,12 @@ public class CameraActivity extends Activity implements RecognitionListener {
     @Override
     public void onStart() {
         super.onStart();
+        startService(new Intent(ListeningService.MY_SERVICE));
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        stopService(new Intent(ListeningService.MY_SERVICE));
     }
 }
